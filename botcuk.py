@@ -31,7 +31,16 @@ def main():
         bot.reply_to(message, """\
     Hoşgeldiniz kıymetlimissss kumbara botuna!
     """)
-        bot.reply_to(message, "Şimdiye Kadar Toplanan Miktar: " + str(how_much))
+    
+    @bot.message.handler(commands=['balance'])
+    def show_balance(message):
+        col, db = get_collection()
+        # summary by whole
+        pipe = [{'$group': {'_id': None, 'total': {'$added_amount'}}}]
+        total_until_now_cursor = db.transactions.aggregate(pipeline=pipe)
+        cursorToList = list(total_until_now_cursor)
+        for document in cursorToList:  
+            bot.reply_to(message, "Toplam bakiye: (veritabanından): " + str(document['total']))
     
     
     @bot.message_handler(regexp="[\-\+]?[0-9]*(\.[0-9]+)?") # [+-]?([0-9]*[.])?[0-9]+
@@ -41,7 +50,6 @@ def main():
         col.insert_one({"telegram_user_name": message.from_user.username, 
                    "added_amount": float(message.text),
                    "datetime": str(datetime.datetime.now())})
-        # print_col(col)
         
         # summary by whole
         pipe = [{'$group': {'_id': None, 'total': {'$sum': '$added_amount'}}}]
