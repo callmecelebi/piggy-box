@@ -23,13 +23,12 @@ def main():
     API_TOKEN = "5327586510:AAHhZoAddBQ0dw9y_Hq-6cRaAWG0ZnaGm5M"
     
     bot = telebot.TeleBot(API_TOKEN)
-    how_much = 0
     
     # Handle '/start' and '/help'
     @bot.message_handler(commands=['help', 'start'])
     def send_welcome(message):
         bot.reply_to(message, """\
-    Hoşgeldiniz kıymetlimissss kumbara botuna!
+    Welcome! One Ring to rule them all, One Ring to find them, One Ring to bring them all, and in the darkness bind them.
     """)
     
     @bot.message.handler(commands=['balance'])
@@ -40,7 +39,7 @@ def main():
         total_until_now_cursor = db.transactions.aggregate(pipeline=pipe)
         cursorToList = list(total_until_now_cursor)
         for document in cursorToList:  
-            bot.reply_to(message, "Toplam bakiye: (veritabanından): " + str(document['total']))
+            bot.reply_to(message, "Total Balance: " + str(document['total']))
     
     
     @bot.message_handler(regexp="[\-\+]?[0-9]*(\.[0-9]+)?") # [+-]?([0-9]*[.])?[0-9]+
@@ -56,14 +55,14 @@ def main():
         total_until_now_cursor = db.transactions.aggregate(pipeline=pipe)
         cursorToList = list(total_until_now_cursor)
         for document in cursorToList:  
-            bot.reply_to(message, "Şimdiye kadar toplanan bütün miktar(veritabanından): " + str(document['total']))
+            bot.reply_to(message, "Total saved amount till now: " + str(document['total']))
     
         # summary by users
         pipe_by_user= [{'$group': {'_id': '$telegram_user_name', 'total': {'$sum': '$added_amount'}}}]
         pipeByUserCursor = db.transactions.aggregate(pipeline=pipe_by_user)
         pipeByuserCursorToList = list(pipeByUserCursor)
         for document in pipeByuserCursorToList:  
-            bot.reply_to(message, "Şimdiye kadar {} kullanıcısı ne kadar ekledi?(veritabanından): {}".format(str(document['_id']), str(document['total'])))
+            bot.reply_to(message, "User @{} saved as much as: {}".format(str(document['_id']), str(document['total'])))
 
 
     bot.infinity_polling()
