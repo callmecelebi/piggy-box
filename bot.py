@@ -20,7 +20,7 @@ def main():
         col = db["transactions"]
         return col, db
     
-    API_TOKEN = "5327586510:AAHhZoAddBQ0dw9y_Hq-6cRaAWG0ZnaGm5M"
+    API_TOKEN = YOUR_TELEGRAM_BOT_API_KEY
     
     bot = telebot.TeleBot(API_TOKEN)
     
